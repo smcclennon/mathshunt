@@ -186,12 +186,17 @@ class screen:
         print("\n== Leaderboard ==")
         scores = []
         for user in app_tables.users:
-            scores.append([user, app_tables.users[user]["highscore"]])
+            # 14, Alex
+            scores.append((app_tables.users[user]["highscore"], user))
 
-        scores.sort()
-        for i in range(0, 5):
+        # Sort by largest score
+        scores = sorted(scores, reverse=True)
+
+        # Length is either number of scores saved, or maximum 5, whichever is smaller
+        leaderboard_length = min(len(scores), 5)
+        for i in range(leaderboard_length):
             # 1. Jessica: 40
-            print(f'{i+1}. {scores[i][0]}: {scores[i][1]}')
+            print(f'{i+1}. {scores[i][1]}: {scores[i][0]}')
         input("[Go back]")
 
     # Choose difficulty
