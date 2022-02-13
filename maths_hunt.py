@@ -236,14 +236,15 @@ class screen:
                 print("Username taken")
 
     def main_menu():
-        print("\n== Welcome to Maths Hunt ==")
-        print("[Play]  [Leaderboard]")
-        choice = input()
+        while True:
+            print("\n== Welcome to Maths Hunt ==")
+            print("[Play]  [Leaderboard]")
+            choice = input()
 
-        if choice == "play":
-            screen.login()
-        elif choice == "leaderboard":
-            screen.leaderboard()
+            if choice == "play":
+                screen.login()
+            elif choice == "leaderboard":
+                screen.leaderboard()
 
 app_tables.users = app_tables.load_db()
 screen.main_menu()
