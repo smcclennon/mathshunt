@@ -1,17 +1,126 @@
-import os, hashlib
+import os, hashlib, json, base64
 
-user_db = {
-    "test": {  # Password: "secure"
-        "salt": b"\xab\xbf\xdcl\t\xecm\xcc\xceY0M\xca\x02\xc1,\x1aRk\xa4Q&H\x1c\xd5\xddib\x9c\xfb0\x88",
-        "key": b"\x01\x9a+\xe3\xc5\x9c\x1f\xaa;\x94U\xe7\xa50 \x9d\xa7\x06\xfblC\xa8\xdf\x99-\xaf4\xef\xe2\xa2\xf6$",
-        "highscore": 0
+# Print coloured debug messages if True
+debug_messages = True
+def debug(message, status='debug'):
+    if debug_messages:
+        colours = {
+            "grey": "\033[0;37m",
+            "yellow_bold": "\033[1;33m",
+            "red": "\033[0;31m",
+            "green": "\033[0;32m",
+            "end": "\033[0m"
         }
-}
+        if status == 'debug':
+            status_colour = colours["grey"]
+        elif status == 0:
+            status_colour = colours["green"]
+        elif status == 1:
+            status_colour = colours["red"]
+        print(f'{colours["yellow_bold"]}DEBUG: {colours["end"]}{status_colour}{message}{colours["end"]}')
 
+# Emulate Anvil databases
+class app_tables():
+    user_db_filename = 'user_db'
+
+    def b64_encode(original_bytes):
+        debug('Encoding bytes to base64')
+        # Input: b'T\x8b[m\xa7>'
+        base64_bytes = base64.b64encode(original_bytes)  # Encode with base64: b'VItbbac+'
+        base64_string = base64_bytes.decode('utf-8')  # Bytes to string: 'VItbbac+'
+        return base64_string
+
+    def b64_decode(base64_string):
+        debug('Decoding base64 to bytes')
+        # Input: 'VItbbac+'
+        base64_bytes = base64_string.encode('utf-8')  # b'VItbbac+'
+        original_bytes = base64.b64decode(base64_bytes)  # Decode from base64: b'T\x8b[m\xa7>'
+        return original_bytes
+    
+    def getcreds(username):
+        debug(f'Getting credentials for "{username}"')
+        creds = []
+        for item in ["salt", "key"]:
+            encoded_item = app_tables.users[username][item]
+            decoded_item = app_tables.b64_decode(encoded_item)
+            creds.append(decoded_item)
+        debug('Credentials retrieved!', 0)
+        return creds[0], creds[1]  # return salt, key
+    
+    def save_db():
+        debug('Saving database to disk')
+        with open(f"{app_tables.user_db_filename}.json", "w") as user_db_file:
+            json.dump(app_tables.users, user_db_file)
+            debug('Wrote database to disk', 0)
+    
+    def putcreds(username, salt, key):
+        debug(f'Putting credentials for "{username}"')
+        creds = []
+        for item in [salt, key]:
+            encoded_item = app_tables.b64_encode(item)
+            creds.append(encoded_item)
+        app_tables.users[username]["salt"] = creds[0]
+        app_tables.users[username]["key"] = creds[1]
+        debug('Put credentials!', 0)
+        app_tables.save_db()
+    
+    def load_db():
+        debug('Loading database from disk')
+        while True:
+            try:
+                # Load user database from file
+                with open(f"{app_tables.user_db_filename}.json", "r") as user_db_file:
+
+                    # Store contents of file as string
+                    # These contents are backed up if JSON load fails
+                    user_db_string = user_db_file.read()
+
+                    # Attempt to load file contents as JSON
+                    user_db = json.loads(user_db_string)
+
+                # Print success message
+                debug('Loaded database!', 0)
+
+                # Database loaded successfully, stop looping
+                return user_db
+
+            # If JSON is erroneous, backup file and delete original
+            except json.decoder.JSONDecodeError as e:
+
+                # New variable name for clarity
+                user_db_backup = user_db_string
+
+                # Open Create backup file
+                with open(f"{app_tables.user_db_filename}_backup.json", "w") as user_db_backup_file:
+
+                    # Write erroneous file contents to backup file
+                    user_db_backup_file.write(user_db_backup)
+                debug(f'Erroneous database detected and backed up [{e}]', 1)
+
+                # Delete original erroneous file, and re-loop to create new file
+                os.remove(f'{app_tables.user_db_filename}.json')
+
+            # If original file missing, recreate with blank data
+            except FileNotFoundError:
+                debug('No database found', 1)
+
+                # Create new file
+                with open(f"{app_tables.user_db_filename}.json", "w") as user_db_file:
+
+                    # Initialise with empty JSON data structure
+                    json.dump(dict(), user_db_file)
+
+                # Print debug message and re-loop (to load database in to variable)
+                debug('Created new database', 0)
+
+
+
+# Backend code
 class module():
 
     # https://nitratine.net/blog/post/how-to-hash-passwords-in-python/
     def hash(password, **kwargs):
+        debug('Hashing password')
         # Generate secure random salt
         new_salt = os.urandom(32)
         # Use salt argument over new_salt if provided
@@ -27,60 +136,71 @@ class module():
         return salt, key
 
     def authenticate(username, password):
-        if username in user_db:
-            # Get correct keys from database
-            original_salt = user_db[username]["salt"]
-            original_key = user_db[username]["key"]
+        debug(f'Authenticating "{username}"')
+        if username in app_tables.users:
+            # Get correct keys from database, converting string back to bytes
+            original_salt, original_key = app_tables.getcreds(username)
 
             # Generate new keys using provided credentials
             original_salt, new_key = module.hash(password, salt=original_salt)
 
             # Compare new keys to correct keys
             if original_key == new_key:
+                debug('Authentication success!', 0)
                 return "success"
             else:
+                debug('Authentication failure, invalid_password', 1)
                 return "invalid_password"
         else:
+            debug('Authentication failure, invalid_user', 1)
             return "invalid_user"
 
     def register(username, password):
-        if username in user_db:
+        debug(f'Registering {username}')
+        if username in app_tables.users:
+            debug('Registration failure, username_taken', 1)
             return "username_taken"
         else:
             # Generate secure keys for storage
             salt, key = module.hash(password)
 
-            # Store non-plaintext password
-            user_db[username] = {
-                "salt": salt,
-                "key": key,
+            # Initialise user entry
+            app_tables.users[username] = {
+                "salt": "",
+                "key": "",
                 "highscore": 0
             }
+            # Store non-plaintext password
+            app_tables.putcreds(username, salt, key)
+            debug('Registration success!', 0)
             return "success"
 
 
 
 
-
+# Frontend code
 class screen:
 
+    # Print the leaderboard
     def leaderboard():
         print("\n== Leaderboard ==")
         scores = []
-        for user in user_db:
-            scores.append([user, user_db[user]["highscore"]])
+        for user in app_tables.users:
+            scores.append([user, app_tables.users[user]["highscore"]])
 
         scores.sort()
         for i in range(0, 5):
             # 1. Jessica: 40
-            print(f'{i+=1}. {scores[i][0]}: {scores[i][1]}')
+            print(f'{i+1}. {scores[i][0]}: {scores[i][1]}')
         input("[Go back]")
 
     # Choose difficulty
     # Pass "username" to keep track of who is authenticated
     def difficulty(username):
         print("\n== Choose difficulty ==")
+        print(f"Welcome back, {username}!")
         choice = input("[Easy] [Normal] [Expert]")
+        
 
     def login():
         print("\n== Login ==")
@@ -94,7 +214,7 @@ class screen:
 
             # Handle response code
             if auth_response == "success":
-                self.difficulty(username)
+                screen.difficulty(username)
             elif auth_response == "invalid_user":
                 print("User does not exist")
             elif auth_response == "invalid_password":
@@ -120,4 +240,5 @@ class screen:
         elif choice == "leaderboard":
             screen.leaderboard()
 
+app_tables.users = app_tables.load_db()
 screen.main_menu()
