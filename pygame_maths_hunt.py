@@ -35,11 +35,14 @@ def set_language(selected_language):
 
 set_language("english")
 
+# Base template: https://www.geeksforgeeks.org/introduction-to-pygame/
+# Base template: https://pythonguides.com/python-pygame-tutorial/
 pygame.init()
 window = pygame.display.set_mode((assets["aspect_ratio"]["x"], assets["aspect_ratio"]["y"]))  # Set app dimensions
 pygame.display.set_caption(lang["app_name"])  # Set window title
 
 # Load background image
+# Add background image: https://www.askpython.com/python-modules/pygame-looping-background
 background_image = pygame.image.load(assets["background_image_directory"])
 background_image = pygame.transform.scale(background_image,(assets["aspect_ratio"]["x"], assets["aspect_ratio"]["y"]))
 
