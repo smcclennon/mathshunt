@@ -10,12 +10,14 @@ assets = {
         "x": 1080,
         "y": 540
     },
+    # Convert and store colours as Pygame compatible RGB values instead of incompatible HEX
+    # https://stackoverflow.com/questions/53253713
     "colour": {
-        "blue": "0D80C6",
-        "orange": "EC9235",
-        "pink": "E40D53",
-        "black": "000000",
-        "white": "FFFFFF"
+        "blue": pygame.Color('#0D80C6'),
+        "orange": pygame.Color('#EC9235'),
+        "pink": pygame.Color('#E40D53'),
+        "black": pygame.Color('#000000'),
+        "white": pygame.Color('#FFFFFF')
     }
 }
 
