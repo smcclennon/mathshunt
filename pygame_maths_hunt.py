@@ -8,7 +8,7 @@ assets = {
     "background_image_directory": "img/19872298.jpg",
     "aspect_ratio": {
         "x": 1080,
-        "y": 540
+        "y": 675
     },
     # Convert and store colours as Pygame compatible RGB values instead of incompatible HEX
     # https://stackoverflow.com/questions/53253713
