@@ -2,6 +2,8 @@
 # smcclennon.github.io
 
 import pygame, time, random
+from pygame.locals import *
+
 
 # Globally declare assets to be used throughout the game
 assets = {
@@ -39,9 +41,14 @@ set_language("english")
 
 # Base template: https://www.geeksforgeeks.org/introduction-to-pygame/
 # Base template: https://pythonguides.com/python-pygame-tutorial/
+# Initialise Pygame constructor
 pygame.init()
-window = pygame.display.set_mode((assets["aspect_ratio"]["x"], assets["aspect_ratio"]["y"]))  # Set app dimensions
-pygame.display.set_caption(lang["app_name"])  # Set window title
+
+# Set app dimensions
+screen = pygame.display.set_mode((assets["aspect_ratio"]["x"], assets["aspect_ratio"]["y"]))
+
+# Set window title
+pygame.display.set_caption(lang["app_name"])
 
 # Load background image
 # Add background image: https://www.askpython.com/python-modules/pygame-looping-background
@@ -49,18 +56,17 @@ background_image = pygame.image.load(assets["background_image_directory"])
 background_image = pygame.transform.scale(background_image,(assets["aspect_ratio"]["x"], assets["aspect_ratio"]["y"]))
 
 # Game loop
-exit_game = False 
-while not exit_game:
+running = True 
+while running:
     # Apply background image
-    window.blit(background_image, (0, 0))
+    screen.blit(background_image, (0, 0))
 
     # for loop through the event queue
     for event in pygame.event.get():
         # Check for QUIT event
         if event.type == pygame.QUIT:
-            exit_game = True
-    
+            running = False
     # Update display
     pygame.display.update()
 
-pygame.display.flip()
+pygame.quit()
