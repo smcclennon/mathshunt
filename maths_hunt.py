@@ -202,9 +202,9 @@ class screen:
     # Choose difficulty
     # Pass "username" to keep track of who is authenticated
     def difficulty(username):
-        print("\n== Choose difficulty ==")
+        print("\n== Choose level ==")
         print(f"Welcome back, {username}!")
-        choice = input("[Easy] [Normal] [Expert]")
+        choice = input("[0] [1] [2]")
         
 
     def login():
