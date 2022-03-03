@@ -19,104 +19,9 @@ def debug(message, status='debug'):
             status_colour = colours["red"]
         print(f'{colours["yellow_bold"]}DEBUG: {colours["end"]}{status_colour}{message}{colours["end"]}')
 
-# Emulate Anvil databases
-class app_tables():
-    user_db_filename = 'user_db'
-
-    def b64_encode(original_bytes):
-        debug('Encoding bytes to base64')
-        # Input: b'T\x8b[m\xa7>'
-        base64_bytes = base64.b64encode(original_bytes)  # Encode with base64: b'VItbbac+'
-        base64_string = base64_bytes.decode('utf-8')  # Bytes to string: 'VItbbac+'
-        return base64_string
-
-    def b64_decode(base64_string):
-        debug('Decoding base64 to bytes')
-        # Input: 'VItbbac+'
-        base64_bytes = base64_string.encode('utf-8')  # b'VItbbac+'
-        original_bytes = base64.b64decode(base64_bytes)  # Decode from base64: b'T\x8b[m\xa7>'
-        return original_bytes
-    
-    def getcreds(username):
-        debug(f'Getting credentials for "{username}"')
-        creds = []
-        for item in ["salt", "key"]:
-            encoded_item = app_tables.users[username][item]
-            decoded_item = app_tables.b64_decode(encoded_item)
-            creds.append(decoded_item)
-        debug('Credentials retrieved!', 0)
-        return creds[0], creds[1]  # return salt, key
-    
-    def save_db():
-        debug('Saving database to disk')
-        with open(f"{app_tables.user_db_filename}.json", "w") as user_db_file:
-            json.dump(app_tables.users, user_db_file)
-            debug('Wrote database to disk', 0)
-    
-    def putcreds(username, salt, key):
-        debug(f'Putting credentials for "{username}"')
-        creds = []
-        for item in [salt, key]:
-            encoded_item = app_tables.b64_encode(item)
-            creds.append(encoded_item)
-        app_tables.users[username]["salt"] = creds[0]
-        app_tables.users[username]["key"] = creds[1]
-        debug('Put credentials!', 0)
-        app_tables.save_db()
-    
-    def load_db():
-        debug('Loading database from disk')
-        while True:
-            try:
-                # Load user database from file
-                with open(f"{app_tables.user_db_filename}.json", "r") as user_db_file:
-
-                    # Store contents of file as string
-                    # These contents are backed up if JSON load fails
-                    user_db_string = user_db_file.read()
-
-                    # Attempt to load file contents as JSON
-                    user_db = json.loads(user_db_string)
-
-                # Print success message
-                debug('Loaded database!', 0)
-
-                # Database loaded successfully, stop looping
-                return user_db
-
-            # If JSON is erroneous, backup file and delete original
-            except json.decoder.JSONDecodeError as e:
-
-                # New variable name for clarity
-                user_db_backup = user_db_string
-
-                # Open Create backup file
-                with open(f"{app_tables.user_db_filename}_backup.json", "w") as user_db_backup_file:
-
-                    # Write erroneous file contents to backup file
-                    user_db_backup_file.write(user_db_backup)
-                debug(f'Erroneous database detected and backed up [{e}]', 1)
-
-                # Delete original erroneous file, and re-loop to create new file
-                os.remove(f'{app_tables.user_db_filename}.json')
-
-            # If original file missing, recreate with blank data
-            except FileNotFoundError:
-                debug('No database found', 1)
-
-                # Create new file
-                with open(f"{app_tables.user_db_filename}.json", "w") as user_db_file:
-
-                    # Initialise with empty JSON data structure
-                    json.dump(dict(), user_db_file)
-
-                # Print debug message and re-loop (to load database in to variable)
-                debug('Created new database', 0)
-
-
-
-# Backend code
-class module():
+# github.com/smcclennon/pyauth
+# Backend modules handling cryptography and codecs
+class Codec():
 
     # https://nitratine.net/blog/post/how-to-hash-passwords-in-python/
     def hash(password, **kwargs):
@@ -135,14 +40,102 @@ class module():
         )
         return salt, key
 
+    def b64_encode(original_bytes):
+        debug('Encoding bytes to base64')
+        # Input: b'T\x8b[m\xa7>'
+        base64_bytes = base64.b64encode(original_bytes)  # Encode with base64: b'VItbbac+'
+        base64_string = base64_bytes.decode('utf-8')  # Bytes to string: 'VItbbac+'
+        return base64_string
+
+    def b64_decode(base64_string):
+        debug('Decoding base64 to bytes')
+        # Input: 'VItbbac+'
+        base64_bytes = base64_string.encode('utf-8')  # b'VItbbac+'
+        original_bytes = base64.b64decode(base64_bytes)  # Decode from base64: b'T\x8b[m\xa7>'
+        return original_bytes
+
+# github.com/smcclennon/pyauth
+# Interface with database file
+class Db_interface():
+    user_db_filename = 'user_db'
+    
+    def save_db():
+        debug('Saving database to disk')
+        with open(f"{Db_interface.user_db_filename}.json", "w") as user_db_file:
+            json.dump(Db_interface.users, user_db_file)
+            debug('Wrote database to disk', 0)
+    
+    def load_db():
+        debug('Loading database from disk')
+        while True:
+            try:
+                # Load user database from file
+                with open(f"{Db_interface.user_db_filename}.json", "r") as user_db_file:
+                    # Store contents of file as string
+                    # These contents are backed up if JSON load fails
+                    user_db_string = user_db_file.read()
+                    # Attempt to load file contents as JSON
+                    user_db = json.loads(user_db_string)
+                # Print success message
+                debug('Loaded database!', 0)
+                # Database loaded successfully, stop looping
+                Db_interface.users = user_db
+                break
+
+            # If JSON is erroneous, backup file and delete original
+            except json.decoder.JSONDecodeError as e:
+                # New variable name for clarity
+                user_db_backup = user_db_string
+                # Open Create backup file
+                with open(f"{Db_interface.user_db_filename}_backup.json", "w") as user_db_backup_file:
+                    # Write erroneous file contents to backup file
+                    user_db_backup_file.write(user_db_backup)
+                debug(f'Erroneous database detected and backed up [{e}]', 1)
+                # Delete original erroneous file, and re-loop to create new file
+                os.remove(f'{Db_interface.user_db_filename}.json')
+
+            # If original file missing, recreate with blank data
+            except FileNotFoundError:
+                debug('No database found', 1)
+                # Create new file
+                with open(f"{Db_interface.user_db_filename}.json", "w") as user_db_file:
+                    # Initialise with empty JSON data structure
+                    json.dump(dict(), user_db_file)
+                # Print debug message and re-loop (to load database in to variable)
+                debug('Created new database', 0)
+
+    def getcreds(username):
+        debug(f'Getting credentials for "{username}"')
+        creds = []
+        for item in ["salt", "key"]:
+            encoded_item = Db_interface.users[username][item]
+            decoded_item = Codec.b64_decode(encoded_item)
+            creds.append(decoded_item)
+        debug('Credentials retrieved!', 0)
+        return creds[0], creds[1]  # return salt, key
+
+    def putcreds(username, salt, key):
+        debug(f'Putting credentials for "{username}"')
+        creds = []
+        for item in [salt, key]:
+            encoded_item = Codec.b64_encode(item)
+            creds.append(encoded_item)
+        Db_interface.users[username].update({"salt": creds[0], "key": creds[1]})
+        debug('Put credentials!', 0)
+        Db_interface.save_db()
+
+# github.com/smcclennon/pyauth
+# Authentication code
+class Auth():
+
     def authenticate(username, password):
         debug(f'Authenticating "{username}"')
-        if username in app_tables.users:
+        if username in Db_interface.users:
             # Get correct keys from database, converting string back to bytes
-            original_salt, original_key = app_tables.getcreds(username)
+            original_salt, original_key = Db_interface.getcreds(username)
 
             # Generate new keys using provided credentials
-            original_salt, new_key = module.hash(password, salt=original_salt)
+            original_salt, new_key = Codec.hash(password, salt=original_salt)
 
             # Compare new keys to correct keys
             if original_key == new_key:
@@ -157,25 +150,29 @@ class module():
 
     def register(username, password):
         debug(f'Registering {username}')
-        if username in app_tables.users:
+        
+        # Prevent new dictionary keys being stored as integers
+        username = str(username)
+
+        if username in Db_interface.users:
             debug('Registration failure, username_taken', 1)
             return "username_taken"
         else:
             # Generate secure keys for storage
-            salt, key = module.hash(password)
+            salt, key = Codec.hash(password)
 
             # Initialise user entry
-            app_tables.users[username] = {
-                "salt": "",
-                "key": "",
-                "highscore": 0
-            }
+            # Add "highscore" data field to user
+            Db_interface.users.update({username: {"highscore": 0}})
             # Store non-plaintext password
-            app_tables.putcreds(username, salt, key)
+            Db_interface.putcreds(username, salt, key)
             debug('Registration success!', 0)
             return "success"
 
 
+# Backend code
+class module:
+    pass
 
 
 # Frontend code
@@ -185,9 +182,9 @@ class screen:
     def leaderboard():
         print("\n== Leaderboard ==")
         scores = []
-        for user in app_tables.users:
+        for user in Db_interface.users:
             # 14, Alex
-            scores.append((app_tables.users[user]["highscore"], user))
+            scores.append((Db_interface.users[user]["highscore"], user))
 
         # Sort by largest score
         scores = sorted(scores, reverse=True)
@@ -215,7 +212,7 @@ class screen:
 
         if choice == "login":
             # Generate keys for provided credentials and compare against database
-            auth_response = module.authenticate(username, password)
+            auth_response = Auth.authenticate(username, password)
 
             # Handle response code
             if auth_response == "success":
@@ -227,7 +224,7 @@ class screen:
 
         elif choice == "register":
             # Generate secure keys and attempt to store
-            register_response = module.register(username, password)
+            register_response = Auth.register(username, password)
 
             # Handle response code
             if register_response == "success":
@@ -246,5 +243,5 @@ class screen:
             elif choice == "leaderboard":
                 screen.leaderboard()
 
-app_tables.users = app_tables.load_db()
+Db_interface.load_db()
 screen.main_menu()
