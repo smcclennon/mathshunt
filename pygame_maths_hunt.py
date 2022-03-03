@@ -23,21 +23,9 @@ assets = {
     }
 }
 
-def set_language(selected_language):
-    # Locally declare languages to be selectively picked
-    # when language is chosen
-    all_languages = {
-        "english": {
-            "app_name": "Maths Hunt"
-        }
+lang = {
+    "app_name": "Maths Hunt"
     }
-    # Globally declare 'lang'
-    global lang
-    # Set global language to selected_language
-    lang = all_languages[selected_language]
-
-
-set_language("english")
 
 # Base template: https://www.geeksforgeeks.org/introduction-to-pygame/
 # Base template: https://pythonguides.com/python-pygame-tutorial/
