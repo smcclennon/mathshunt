@@ -193,7 +193,11 @@ class screen:
         leaderboard_length = min(len(scores), 5)
         for i in range(leaderboard_length):
             # 1. Jessica: 40
-            print(f'{i+1}. {scores[i][1]}: {scores[i][0]}')
+            print_line = ''
+            print_line += f'{i+1}. '  # "1. "
+            print_line += f'{scores[i][1]}: '  # Extract name from scores list "Jessica: "
+            print_line += f'{scores[i][0]}'  # Extract score from scores list "40"
+            print(print_line) # Print
         input("[Go back]")
 
     # Choose difficulty
