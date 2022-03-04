@@ -63,7 +63,7 @@ class Db_interface():
         debug('Saving database to disk')
         with open(f"{Db_interface.user_db_filename}.json", "w") as user_db_file:
             json.dump(Db_interface.users, user_db_file)
-            debug('Wrote database to disk', 0)
+            debug('\tWrote database to disk', 0)
     
     def load_db():
         debug('Loading database from disk')
@@ -77,7 +77,7 @@ class Db_interface():
                     # Attempt to load file contents as JSON
                     user_db = json.loads(user_db_string)
                 # Print success message
-                debug('Loaded database!', 0)
+                debug('\tLoaded database!', 0)
                 # Database loaded successfully, stop looping
                 Db_interface.users = user_db
                 break
@@ -90,19 +90,19 @@ class Db_interface():
                 with open(f"{Db_interface.user_db_filename}_backup.json", "w") as user_db_backup_file:
                     # Write erroneous file contents to backup file
                     user_db_backup_file.write(user_db_backup)
-                debug(f'Erroneous database detected and backed up [{e}]', 1)
+                debug(f'\tErroneous database detected and backed up [{e}]', 1)
                 # Delete original erroneous file, and re-loop to create new file
                 os.remove(f'{Db_interface.user_db_filename}.json')
 
             # If original file missing, recreate with blank data
             except FileNotFoundError:
-                debug('No database found', 1)
+                debug('\tNo database found', 1)
                 # Create new file
                 with open(f"{Db_interface.user_db_filename}.json", "w") as user_db_file:
                     # Initialise with empty JSON data structure
                     json.dump(dict(), user_db_file)
                 # Print debug message and re-loop (to load database in to variable)
-                debug('Created new database', 0)
+                debug('\tCreated new database', 0)
 
     def getcreds(username):
         debug(f'Getting credentials for "{username}"')
@@ -111,7 +111,7 @@ class Db_interface():
             encoded_item = Db_interface.users[username][item]
             decoded_item = Codec.b64_decode(encoded_item)
             creds.append(decoded_item)
-        debug('Credentials retrieved!', 0)
+        debug('\tCredentials retrieved!', 0)
         return creds[0], creds[1]  # return salt, key
 
     def putcreds(username, salt, key):
@@ -121,7 +121,7 @@ class Db_interface():
             encoded_item = Codec.b64_encode(item)
             creds.append(encoded_item)
         Db_interface.users[username].update({"salt": creds[0], "key": creds[1]})
-        debug('Put credentials!', 0)
+        debug('\tPut credentials!', 0)
         Db_interface.save_db()
 
 # github.com/smcclennon/pyauth
@@ -139,13 +139,13 @@ class Auth():
 
             # Compare new keys to correct keys
             if original_key == new_key:
-                debug('Authentication success!', 0)
+                debug('\tAuthentication success!', 0)
                 return "success"
             else:
-                debug('Authentication failure, invalid_password', 1)
+                debug('\tAuthentication failure, invalid_password', 1)
                 return "invalid_password"
         else:
-            debug('Authentication failure, invalid_user', 1)
+            debug('\tAuthentication failure, invalid_user', 1)
             return "invalid_user"
 
     def register(username, password):
@@ -155,7 +155,7 @@ class Auth():
         username = str(username)
 
         if username in Db_interface.users:
-            debug('Registration failure, username_taken', 1)
+            debug('\tRegistration failure, username_taken', 1)
             return "username_taken"
         else:
             # Generate secure keys for storage
@@ -166,7 +166,7 @@ class Auth():
             Db_interface.users.update({username: {"highscore": 0}})
             # Store non-plaintext password
             Db_interface.putcreds(username, salt, key)
-            debug('Registration success!', 0)
+            debug('\tRegistration success!', 0)
             return "success"
 
 
