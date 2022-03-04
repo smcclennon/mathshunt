@@ -1,4 +1,4 @@
-import os, hashlib, json, base64
+import os, hashlib, json, base64, random
 
 # Print coloured debug messages if True
 debug_messages = True
@@ -172,7 +172,39 @@ class Auth():
 
 # Backend code
 class module:
-    pass
+    def generate_question():
+        debug('Generating question')
+        answer = -1
+        
+        # Generate the operator used in the maths question
+        operator = random.choice(["add", "subtract", "multiply", "divide"])
+        debug(f'\tOperator: {operator}')
+        
+        while True:
+            num1 = random.randint(0, 12)  # Generate the first number
+            num2 = random.randint(0, 12)  # Generate the second number
+            debug(f'\tNumbers generated: {num1}, {num2}')
+            
+            if operator == "add":
+                answer = num1 + num2  # Add num1 and num2 together
+            elif operator == "subtract":
+                answer = num1 - num2  # Subtract num2 from num1
+            elif operator == "multiply":
+                answer = num1 * num2  # Multiply num1 and num2 together
+            elif operator == "divide":
+                answer = num1 / num2 # Divide num1 in to num2
+            debug(f'\tQuestion: {num1} {operator} {num2} = {answer}')
+            
+            # Validate question
+            if not float(answer).is_integer():
+                debug(f'\tAnswer is not an integer', 1)
+                answer = int(answer)
+            elif answer < 0:
+                debug(f'\tAnswer is less than 0', 1)
+            else:
+                debug('\tAnswer is valid', 0)
+                break
+        return num1, operator, num2, answer
 
 
 # Frontend code
@@ -200,12 +232,26 @@ class screen:
             print(print_line) # Print
         input("[Go back]")
 
+    # Play game
+    def game(username, timer):
+        while True:
+            question = module.generate_question()
+            input()
+        
     # Choose difficulty
     # Pass "username" to keep track of who is authenticated
     def difficulty(username):
         print("\n== Choose level ==")
-        print(f"Welcome back, {username}!")
-        choice = input("[0] [1] [2]")
+        print("[0] [1] [2]")
+        choice = input()
+        if choice == "0":
+            timer = None  # timer disabled
+        elif choice == "1":
+            timer = 20  # 20 second timer
+        elif choice == "2":
+            timer = 10  # 10 second timer
+        screen.game(username, timer)  # Start the game
+            
         
 
     def login():
