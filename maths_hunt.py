@@ -181,8 +181,8 @@ class module:
         debug(f'\tOperator: {operator}')
         
         while True:
-            num1 = random.randint(0, 12)  # Generate the first number
-            num2 = random.randint(0, 12)  # Generate the second number
+            num1 = random.randint(1, 12)  # Generate the first number
+            num2 = random.randint(1, 12)  # Generate the second number
             debug(f'\tNumbers generated: {num1}, {num2}')
             
             if operator == "add":
