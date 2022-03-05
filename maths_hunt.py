@@ -170,41 +170,95 @@ class Auth():
             return "success"
 
 
-# Backend code
 class module:
-    def generate_question():
-        debug('Generating question')
-        answer = -1
-        
+    """ Used to group/organise back-end code which does not display anything """
+    
+    def generate_operator():
         # Generate the operator used in the maths question
         operator = random.choice(["add", "subtract", "multiply", "divide"])
         debug(f'\tOperator: {operator}')
+        return operator
+
+    def calculate_question(num1, num2, operator):
+        if operator == "add":
+            answer = num1 + num2  # Add num1 and num2 together
+        elif operator == "subtract":
+            answer = num1 - num2  # Subtract num2 from num1
+        elif operator == "multiply":
+            answer = num1 * num2  # Multiply num1 and num2 together
+        elif operator == "divide":
+            answer = num1 / num2 # Divide num1 in to num2
+        return answer
+    
+    def answer_isvalid(answer):
+        # Validate answer
+        if not float(answer).is_integer():
+            debug(f'\tAnswer is not an integer', 1)
+            return False
+        elif answer < 0:
+            debug(f'\tAnswer is less than 0', 1)
+            return False
+        else:
+            debug('\tAnswer is valid', 0)
+            return True
+
+    def generate_answers(min_number, max_number, number_of_values, answer):
+        # Generate multiple choice values
+        debug(f'Generating {number_of_values} multiple-choice answers between {min_number} and {max_number}')
         
+        # Change max value to answer if the answer > max_number 
+        if answer > max_number:
+            debug(f'\tAnswer {answer} is more than max number {max_number}.', 1)
+            max_number = int(answer * 1.5)
+            debug(f'\tNew max number: {max_number}', 0)
+        multiple_choice = []
+        multiple_choice.append(answer)
+        for i in range(number_of_values-1):  # Compensate for answer being added
+            random_number = random.randint(min_number, max_number)
+            multiple_choice.append(random_number)
+            debug(f'\tGenerated: {random_number}')
+
+        debug(f'\tReturn: {multiple_choice}', 0)
+        return multiple_choice
+
+    def generate_question():
+        """
+        Generate a mathematical question to meet the criteria:
+        
+        Operators:
+            Add, subtract, multiply, divide
+        
+        Number range:
+            1 to 12
+        
+        Answer Should:
+            Not be below 0
+            Be a whole number
+        """
+        debug('Generating question')
+        min_number = 1  # Lowest number to use in maths questions
+        max_number = 12  # Highest number to use in maths questions
+        # Number of multiple choice answers to provide, including the answer
+        number_of_answers = 4
+
+        answer = -1
+        operator = module.generate_operator()
         while True:
-            num1 = random.randint(1, 12)  # Generate the first number
-            num2 = random.randint(1, 12)  # Generate the second number
+            num1 = random.randint(min_number, max_number)  # Generate the first number
+            num2 = random.randint(min_number, max_number)  # Generate the second number
             debug(f'\tNumbers generated: {num1}, {num2}')
             
-            if operator == "add":
-                answer = num1 + num2  # Add num1 and num2 together
-            elif operator == "subtract":
-                answer = num1 - num2  # Subtract num2 from num1
-            elif operator == "multiply":
-                answer = num1 * num2  # Multiply num1 and num2 together
-            elif operator == "divide":
-                answer = num1 / num2 # Divide num1 in to num2
+            answer = module.calculate_question(num1, num2, operator)
+
             debug(f'\tQuestion: {num1} {operator} {num2} = {answer}')
-            
-            # Validate question
-            if not float(answer).is_integer():
-                debug(f'\tAnswer is not an integer', 1)
+            if module.answer_isvalid(answer):
                 answer = int(answer)
-            elif answer < 0:
-                debug(f'\tAnswer is less than 0', 1)
-            else:
-                debug('\tAnswer is valid', 0)
                 break
-        return num1, operator, num2, answer
+
+        multiple_choice_answers = module.generate_answers(
+            min_number, max_number, number_of_answers, answer)
+
+        return num1, operator, num2, multiple_choice_answers, answer
 
 
 # Frontend code
