@@ -287,10 +287,42 @@ class screen:
         input("[Go back]")
 
     # Play game
-    def game(username, timer):
-        while True:
+    def game(username, timer, points):
+        """
+        Username: authenticated players username
+        Timer: Seconds to allow the player to choose
+        Points: Number of points to award for each correct answer
+        """
+        debug(f'New game: {timer}s timer, {points} points')
+        current_score = 0
+        for i in range(10):  # 10 rounds
             question = module.generate_question()
-            input()
+            num1, operator, num2, multiple_choice_answers, answer = question  # Unpack tuple
+            
+            print_question = ''
+            print_question += 'Question: '
+            print_question += f'{num1} '
+
+            if operator == 'add':
+                print_question += '+ '
+            elif operator == 'subtract':
+                print_question += '- '
+            elif operator == 'multiply':
+                print_question += '× '
+            elif operator == 'divide':
+                print_question += '÷ '
+            
+            print_question += f'{num2} '
+            
+            print_choices = ''
+            for choice in multiple_choice_answers:
+                print_choices += f'[{choice}] '
+            
+            print(print_question)
+            selected_choice = input(print_choices)
+            if selected_choice == str(answer):
+                current_score += points
+            debug(f'\tCurrent score: {current_score}')
         
     # Choose difficulty
     # Pass "username" to keep track of who is authenticated
