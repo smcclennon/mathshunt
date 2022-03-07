@@ -332,11 +332,14 @@ class screen:
         choice = input()
         if choice == "0":
             timer = None  # timer disabled
+            points = 1  # Award 1 point for each correct answer
         elif choice == "1":
             timer = 20  # 20 second timer
+            points = 2  # Award 2 points for each correct answer
         elif choice == "2":
             timer = 10  # 10 second timer
-        screen.game(username, timer)  # Start the game
+            points = 3  # Award 3 points for each correct answer
+        screen.game(username, timer, points)  # Start the game
             
         
 
