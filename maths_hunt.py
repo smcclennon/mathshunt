@@ -207,14 +207,23 @@ class module:
         debug('')
         debug(f'Generating {number_of_values} multiple-choice answers between {min_number} and {max_number}')
         
-        # Change max value to answer if the answer > max_number 
+        # Increase max multiple-choice value to answer if the answer > max_number 
+        """
+        We do this because if the answer was 200, the multiple choice quesitons would
+        otherwise be something like: [1, 12, 200, 4]
+        and the extreme difference would give the answer away
+        
+        We multiply max_answer by 1.5 to add the posibiliy for multiple-choice
+        answers to overshot the actual answer, so the largest multiple-choice
+        option is not always the actual answer.
+        """
         if answer > max_number:
             debug(f'\tAnswer {answer} is more than current max number {max_number}.', 1)
             max_number = int(answer * 1.5)
             debug(f'\tNew max number: {max_number}', 0)
         multiple_choice = []
         multiple_choice.append(answer)
-        for i in range(number_of_values-1):  # Compensate for answer being added
+        for i in range(number_of_values-1):  # -1 to Compensate for answer being added
             random_number = random.randint(min_number, max_number)
             multiple_choice.append(random_number)
             debug(f'\tmultiple-choice answer: {random_number}')
@@ -307,6 +316,7 @@ class screen:
             print_question += 'Question: '
             print_question += f'{num1} '
 
+            # Convert mathematical operator placeholder to symbol representation
             if operator == 'add':
                 print_question += '+ '
             elif operator == 'subtract':
