@@ -323,8 +323,11 @@ class screen:
             print(print_question)
             selected_choice = input(print_choices)
             if selected_choice == str(answer):
+                print(f'Correct answer! +{points} points')
                 current_score += points
-            debug(f'\tCurrent score: {current_score}')
+                print(f'New score: {current_score}')
+            else:
+                print(f'Incorrect answer. Answer was {answer}')
         
     # Choose difficulty
     # Pass "username" to keep track of who is authenticated
@@ -369,6 +372,7 @@ class screen:
 
             # Handle response code
             if register_response == "success":
+                print('Registration success!')
                 screen.difficulty(username)
             elif register_response == "username_taken":
                 print("Username taken")
