@@ -218,7 +218,9 @@ class module:
             multiple_choice.append(random_number)
             debug(f'\tGenerated: {random_number}')
 
-        debug(f'\tReturn: {multiple_choice}', 0)
+        # Randomise multiple choice answers
+        random.shuffle(multiple_choice)
+        debug(f'\tShuffled multiple-choice answers: {multiple_choice}', 0)
         return multiple_choice
 
     def generate_question():
