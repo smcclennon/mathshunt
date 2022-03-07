@@ -204,11 +204,12 @@ class module:
 
     def generate_answers(min_number, max_number, number_of_values, answer):
         # Generate multiple choice values
+        debug('')
         debug(f'Generating {number_of_values} multiple-choice answers between {min_number} and {max_number}')
         
         # Change max value to answer if the answer > max_number 
         if answer > max_number:
-            debug(f'\tAnswer {answer} is more than max number {max_number}.', 1)
+            debug(f'\tAnswer {answer} is more than current max number {max_number}.', 1)
             max_number = int(answer * 1.5)
             debug(f'\tNew max number: {max_number}', 0)
         multiple_choice = []
@@ -216,7 +217,7 @@ class module:
         for i in range(number_of_values-1):  # Compensate for answer being added
             random_number = random.randint(min_number, max_number)
             multiple_choice.append(random_number)
-            debug(f'\tGenerated: {random_number}')
+            debug(f'\tmultiple-choice answer: {random_number}')
 
         # Randomise multiple choice answers
         random.shuffle(multiple_choice)
@@ -237,6 +238,7 @@ class module:
             Not be below 0
             Be a whole number
         """
+        debug('')
         debug('Generating question')
         min_number = 1  # Lowest number to use in maths questions
         max_number = 12  # Highest number to use in maths questions
