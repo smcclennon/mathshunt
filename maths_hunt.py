@@ -123,6 +123,12 @@ class Db_interface():
         Db_interface.users[username].update({"salt": creds[0], "key": creds[1]})
         debug('\tPut credentials!', 0)
         Db_interface.save_db()
+    
+    def puthighscore(username, score):
+        debug(f'Putting leaderboard entry {score} for "{username}"')
+        Db_interface.users[username].update({"highscore": score})
+        debug('\tPut leaderboard entry!', 0)
+        Db_interface.save_db()
 
 # github.com/smcclennon/pyauth
 # Authentication code
@@ -172,6 +178,17 @@ class Auth():
 
 class module:
     """ Used to group/organise back-end code which does not display anything """
+    
+    def update_highscore(username, score):
+        debug(f'Updating highscore for user "{username}"')
+        oldscore = Db_interface.users[username]["highscore"]
+        if score > oldscore:
+            Db_interface.puthighscore(username, score)
+            debug(f'\tUpdated highscore for user "{username}": {oldscore} -> {score}', 0)
+            return True
+        else:
+            debug(f'\tHighscore not updated for user "{username}": Old score {oldscore} >= {score}', 1)
+            return False
     
     def generate_operator():
         # Generate the operator used in the maths question
@@ -340,6 +357,10 @@ class screen:
                 print(f'New score: {current_score}')
             else:
                 print(f'Incorrect answer. Answer was {answer}')
+        
+        new_highscore = module.update_highscore(username, current_score)
+        if new_highscore:
+            print('New highscore!')
         
     # Choose difficulty
     # Pass "username" to keep track of who is authenticated
