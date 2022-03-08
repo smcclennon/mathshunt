@@ -332,7 +332,7 @@ class screen:
             for choice in multiple_choice_answers:
                 print_choices += f'[{choice}] '
             
-            print(print_question)
+            print(f'\n{print_question}')
             selected_choice = input(print_choices)
             if selected_choice == str(answer):
                 print(f'Correct answer! +{points} points')
