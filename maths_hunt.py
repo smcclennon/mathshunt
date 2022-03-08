@@ -1,4 +1,4 @@
-import os, hashlib, json, base64, random
+import os, hashlib, json, base64, random, time
 
 # Print coloured debug messages if True
 debug_messages = True
@@ -329,6 +329,8 @@ class screen:
             question = module.generate_question()
             num1, operator, num2, multiple_choice_answers, answer = question  # Unpack tuple
             
+            start_time = time.time()
+            
             print_question = ''
             print_question += 'Question: '
             print_question += f'{num1} '
@@ -351,7 +353,11 @@ class screen:
             
             print(f'\n{print_question}')
             selected_choice = input(print_choices)
-            if selected_choice == str(answer):
+            answer_duration = time.time() - start_time
+            
+            if answer_duration > timer:
+                print('Ran out of time!')
+            elif selected_choice == str(answer):
                 print(f'Correct answer! +{points} points')
                 current_score += points
             else:
