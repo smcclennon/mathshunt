@@ -354,9 +354,9 @@ class screen:
             if selected_choice == str(answer):
                 print(f'Correct answer! +{points} points')
                 current_score += points
-                print(f'New score: {current_score}')
             else:
                 print(f'Incorrect answer. Answer was {answer}')
+            print(f'Score: {current_score}')
         
         new_highscore = module.update_highscore(username, current_score)
         if new_highscore:
