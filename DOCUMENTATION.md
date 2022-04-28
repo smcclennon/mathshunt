@@ -54,7 +54,7 @@ function Db_search(username, column) {
 
 ### Usage
 Check if username 'smcclennon' exists in the database:
-```
+```js
 Db_search('smcclennon');
 ```
 - Possible returns:
@@ -62,7 +62,7 @@ Db_search('smcclennon');
   - `false`: The username does not exist.
 ---
 Get value of a column 'highscore' for user 'smcclennon':
-```
+```js
 Db_search('smcclennon', 'highscore');
 ```
 - Possible returns:
