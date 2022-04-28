@@ -8,6 +8,8 @@ I developed the game on [AppLab](https://code.org/educate/applab), as there was 
 
 Source code for the full AppLab implementation can be viewed [here](maths_hunt.js).
 
+Documentation for implementing certain modules in this project yourself can be found in [here](DOCUMENTATION.md).
+
 The game can be played on AppLab [here](https://studio.code.org/projects/applab/tnyvPR89_9SjyNsJAzUVjOgN2FZoqLe5gJeTu28waDw). Please note that your username will become public if you register a new account on the game, and passwords are stored in plain text on the AppLab implementation due to AppLab/JavaScript ES2015 limitations.
 
 ## Python implementation
