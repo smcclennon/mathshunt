@@ -8,13 +8,17 @@ My database search function provides a way to search the database, using the `us
 
 ### Usage
 Check if username 'smcclennon' exists in the database:
-- `Db_search('smcclennon');`
-> Possible returns:
-- `true`: The username exist.
-- `false`: The username does not exist.
-
+```
+Db_search('smcclennon');
+```
+- Possible returns:
+  -  `true`: The username exists.
+  - `false`: The username does not exist.
+---
 Get value of a column 'highscore' for user 'smcclennon':
-- `Db_search('smcclennon', 'highscore');`
-> Possible returns:
-- `27`: The column value, '27' is just an example.
-- `false`: The username does not exist.
+```
+Db_search('smcclennon', 'highscore');
+```
+- Possible returns:
+  - `27`: The column value, '27' is just an example.
+  - `false`: The username does not exist.
