@@ -309,8 +309,8 @@ onEvent("button_game_option1", "click", function( ) {
 
 // Check if the user chose the correct answer
 /*
-// Extract the value from multiple_choice_options at the index of 'choice'
-var user_answer = multiple_choice_options[choice];
+// Extract the value from multiple_choice_answers at the index of 'choice'
+var user_answer = multiple_choice_answers[choice];
 // Compare the users answer against the actual answer
 var user_correct = user_answer == answer; 
 if (user_correct) {
