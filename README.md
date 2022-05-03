@@ -1,18 +1,30 @@
 # Maths Hunt
-This repository contains proof of concept Python code for a childrens math game.
+This repository contains a childrens mathematics game used for a BTEC IT assignment.
 
-View source code [here](maths_hunt.py).
+View original the original python implementation [here](#python-implementation).
 
-## Overview of features:
-- Generates random math questions
+## AppLab implementation
+I developed the game on [AppLab](https://code.org/educate/applab), as there was not enough time available to learn how to design a webapp user interface (UI) using HTML and CSS. AppLab provided a basic click-and-drag interface for designing a UI and uses JavaScript ES2015 as its programming language.
+
+Source code for the full AppLab implementation can be viewed [here](maths_hunt.js).
+
+Documentation for implementing certain modules in this project yourself can be found in [here](DOCUMENTATION.md).
+
+The game can be played on AppLab [here](https://studio.code.org/projects/applab/tnyvPR89_9SjyNsJAzUVjOgN2FZoqLe5gJeTu28waDw). Please note that your username will become public if you register a new account on the game, and passwords are stored in plain text on the AppLab implementation due to AppLab/JavaScript ES2015 limitations.
+
+## Python implementation
+A proof of concept for this game was originally created in Python to establish the computational requirements required for this project, including variables, functions, and logic. The source code for this early implementation can be viewed [here](maths_hunt.py).
+
+### Overview of features:
+- Generates random maths questions
 - Generates 4 realistic multiple choice options
 - Answers are always whole, non-negative numbers
 - 3 levels of difficulty with time limits
 - "Secure" registration and login system
 - Leaderboard system with persistent score storage
 
-## User interface
-Maths Hunt is intended to be a mobile app with a graphical user interface (GUI). This Python implementation was created as a proof of concept for the backend code and modules. Because of this, it does not contain a GUI, instead opting for a basic command line interface (CLI) used mostly for debugging purposes.
+### User interface
+Maths Hunt was intended to be a mobile app with a graphical user interface (GUI). This Python implementation was created as a proof of concept for the backend code and modules. Because of this, it does not contain a GUI, instead opting for a basic command line interface (CLI) used mostly for debugging purposes.
 
 The CLI uses square brackets as a placeholder for representing where an interactive/pressable button would be present within the GUI of the mobile app (Example: `[button1] [button2]`). The CLI button placeholders do not contain any input validation, as in a real mobile app you wouldn't be able to press a button which does not exist.
 
