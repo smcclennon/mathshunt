@@ -320,3 +320,153 @@ if (user_correct) {
 }
 */
 ```
+
+## Final implementation
+```js
+var choice;
+var timer = 0;
+
+  
+  
+// Screen: Game
+// Main game loop
+function game_loop(level) {
+  setScreen("screen_game");
+  
+  // Reset user choice from previous games
+  choice = undefined;
+  
+  // Define local variables
+  var gen, multiple_choice_answers, answer;  // Question generation variables
+  var score = 0;  // Store the users score for their current game
+  var score_increment;  // Amount to add to the score (based on difficulty)
+  var status;  // What the main game loop should do
+  var user_choice;  // Store the number the user clicked on as their answer
+  var timer_static = timer;
+  var rounds_passed = 0;
+
+  if (level == 0) {
+    score_increment = 1;
+
+  } else if (level == 1) {
+    score_increment = 2;
+    
+  } else if (level == 2) {
+    score_increment = 3;
+  }
+
+  status = 'ready_to_generate';
+  timedLoop(1000, function() {
+    if (status == 'ready_to_generate' && rounds_passed >= 11) {
+      // 10 rounds have passed
+      setProperty("gameover_text_score", "text", score);
+      setScreen("screen_gameover");
+      status = "end";
+      stopTimedLoop();
+    }
+    if(status == 'ready_to_generate') {
+      timer = timer_static;
+      choice = undefined;
+      rounds_passed = rounds_passed + 1;
+      var gen = game_generate_question(1, 12);
+
+      // Unpack 'gen' to get all of the values you need
+      var num1 = gen[0];
+      var operator = gen[1];
+      var num2 = gen[2];
+      multiple_choice_answers = gen[3];
+      answer = gen[4];
+      
+      // Generate question text to be displayed to the user
+      var question = '';
+      question += num1;
+      // Convert english operator to symbolic representation
+      question += " ";
+      question += game_symbolic_operator(operator);
+      question += " ";
+      question += num2;
+      
+      // Set your element IDs to display the question and multiple choice options
+      // Change this ID to the element which you want to display your question text on (example: "1 + 7")
+      setProperty("title_game_question", "text", question);
+      
+      // Change these IDs to your multiple choice buttons
+      setProperty("button_game_option0", "text", multiple_choice_answers[0]);
+      setProperty("button_game_option1", "text", multiple_choice_answers[1]);
+      setProperty("button_game_option2", "text", multiple_choice_answers[2]);
+      setProperty("button_game_option3", "text", multiple_choice_answers[3]);
+      // space at the bottom of the set properties
+      status = 'waiting_for_answer';
+    }
+    if (status == 'waiting_for_answer') {
+      // If user has chosen an answer
+      if (choice != undefined) {
+        user_choice = multiple_choice_answers[choice];
+        // Resetting so we are ready for the next loop
+        choice = undefined;
+        status = 'ready_to_generate';
+        var user_correct = user_choice==answer;
+        if (user_correct) {
+          // user got it right
+          score = score + score_increment;
+
+
+        }
+      } else {
+        // User has not chosen
+        // If timer is not disabled
+        if (timer_static != 0) {
+          timer = timer - 1;
+          // If timer has run out
+          if (timer <= 0) {
+            status = 'ready_to_generate';
+          }
+        }
+        
+      }
+    }
+  });
+}
+
+
+
+// Level 0
+onEvent("button_level_0", "click", function ( ) {
+  timer = 0;
+  game_loop(0);
+});
+
+// Level 1
+onEvent("button_level_1", "click", function ( ) {
+  timer = 20;
+  game_loop(1);
+});
+
+// Level 2
+onEvent("button_level_2", "click", function ( ) {
+  timer = 10;
+  game_loop(2);
+});
+
+
+
+// button choice 0
+onEvent("button_game_option0", "click", function( ) {
+  choice = 0;
+});
+
+// button choice 1
+onEvent("button_game_option1", "click", function( ) {
+  choice = 1;
+});
+
+// button choice 2
+onEvent("button_game_option2", "click", function( ) {
+  choice = 2;
+});
+
+// button choice 3
+onEvent("button_game_option3", "click", function( ) {
+  choice = 3;
+});
+```
