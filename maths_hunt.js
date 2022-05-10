@@ -47,7 +47,7 @@ Declare global variables */
 var d = false; 
 
 // Record and display performance messages
-var p = true;
+var p = false;
 
 // Remember previous screen accessed to enable "go back" button functionality
 var screen_breadcrumb_value;
@@ -316,26 +316,25 @@ function Db_putcreds(username, password) {
 }
 
 function Db_changescore(username, new_score) {
-  //var status = "async_start";
   debug("Db_changescore", "Updating leaderboard score for user '" + username + "' to " + new_score + "...") ;
   // Get the database ID for user
   var db_response = Db_search(username, 'id');
-
+  
   // Get the users password, so when we overwrite their record
   // their password is not reset
   var password = Db_search(username, 'password');
-
+  
   // If the database failed to find the user
   if (db_response == false) {
     debug("Db_changescore", "Could not update score. User does not exist: " + username);
-
+    
   // If the database found the user
   } else {
     debug("Db_changescore", "Got User ID: " + db_response + ", updating record...");
-
+    
     // Start async function to update user entry
     updateRecord("userdb", {id:db_response, username:username, password:password, highscore:new_score}, function(record, success) {
-
+      
       // Call this code once the update has completed
       if (success) {
         debug("Db_changescore", "Record id:" +record.id + " has been updated!");
@@ -586,9 +585,9 @@ function game_timer_length(difficulty) {
   if (difficulty == 0) {
     return 0;
   } else if (difficulty == 1) {
-    return 10;
-  } else if (difficulty == 2) {
     return 20;
+  } else if (difficulty == 2) {
+    return 10;
   }
 }
 
@@ -639,11 +638,6 @@ function game_button_id(choice_id) {
 // If value matches, use the index of the value to get the button ID
 // Return button IDs in array
 function game_correct_buttonids(multiple_choice_answers, answer) {
-  //var answers_len = array_length(multiple_choice_answers);
-  
-  // Keep track of for loop index
-  //var index = 0;
-  
   // Store correct ids
   var correct_ids = [];
 
@@ -660,13 +654,7 @@ function game_correct_buttonids(multiple_choice_answers, answer) {
       // Append button id to correct_ids
       appendItem(correct_ids, button_id);
     }
-    
-    // Increment index with for loop
-    //index ++;
   }
-  
-  //var choice_button_id = game_button_id(choice);
-  //var correct_button_id = game_button_id();
   return correct_ids;
 }
 
@@ -860,6 +848,7 @@ function Screen_leaderboard_update_loop() {
 }
 
 
+
 // Screen: Game
 // Set button colours with choice results
 function Screen_game_choicefeedback(choice_id, correct_ids, sleep) {
@@ -896,7 +885,7 @@ function Screen_game_answer_feedback(multiple_choice_answers, answer, user_choic
   var choice_id = game_button_id(user_choice);
   
   
-  //
+  // Replace the question text with the users current score
   setProperty("title_game_question", "text", "Score: " + score);
   
   // Animate buttons
@@ -954,9 +943,8 @@ function Screen_score_init(username, score) {
   setScreen("screen_gameover");
   
   debug("Screen_score_init", "Displayed gameover screen. Updating leaderboard db...");
-  
-  //Db_changescore(username, score);
 }
+
 
 
 // Screen: Game
@@ -1006,6 +994,7 @@ function game_update_timer(start_time, current_time) {
 }
 
 
+
 // Screen: Game
 // Main game loop
 function Screen_game_main(username, difficulty) {
@@ -1041,6 +1030,7 @@ function Screen_game_main(username, difficulty) {
   debug('Screen_game_main', 'Game loop duration: ' + game_loop_duration_ms + 'ms.');
   debug('Screen_game_main', 'Game loop decrement: -' + game_loop_timer_decrement);
   
+  timer = timer_length;
   timedLoop(game_loop_duration_ms, function() {
     performance(10, 10, game_loop_duration_ms, 'game_main');
     
@@ -1053,11 +1043,7 @@ function Screen_game_main(username, difficulty) {
       // Generate question and answers
       console.log('\n\n');
       debug("Screen_game_main", "Executing round " + loops + "...");
-      
-      // Reset timer
-      debug('Screen_game_main', 'Resetting timer');
-      timer = timer_length;
-      
+
       // Generate game questions and answers
       // num1, num2, operator, multiple choice, actual answer
       gen = game_generate_question(1, 12);
@@ -1114,7 +1100,7 @@ function Screen_game_main(username, difficulty) {
         } else {
           debug("Screen_game_main", "User chose incorrect answer " + user_answer + " (Correct: " + answer + ").");
         }
-        
+
         Screen_game_answer_feedback(multiple_choice_answers, answer, user_choice, score, 1000);
         
         update_status("displaying_answer");
@@ -1218,7 +1204,6 @@ onEvent("button_register", "click", function( ) {
     var username = credentials[0];
     var password = credentials[1];
     
-    
     var authorisation = Auth_register(username, password);
     if (authorisation == "success") {
       setScreen("screen_levelselect");
@@ -1287,7 +1272,7 @@ onEvent("button_level2", "click", function ( ) {
 
 
 // Screen: Game
-// Button: "Option 1"
+// Button: "Option 0"
 onEvent("button_game_option0", "click", function( ) {
   console.log("button_game_option0 clicked!");
   choice = 0;
@@ -1296,7 +1281,7 @@ onEvent("button_game_option0", "click", function( ) {
 
 
 // Screen: Game
-// Button: "Option 2"
+// Button: "Option 1"
 onEvent("button_game_option1", "click", function( ) {
   console.log("button_game_option1 clicked!");
   choice = 1;
@@ -1314,7 +1299,7 @@ onEvent("button_game_option2", "click", function( ) {
 
 
 // Screen: Game
-// Buthttps://studio.code.org/v3/assets/tnyvPR89_9SjyNsJAzUVjOgN2FZoqLe5gJeTu28waDw/UXv2_leaderboard_entry.pngton: "Option 4"
+// Button: "Option 4"
 onEvent("button_game_option3", "click", function( ) {
   console.log("button_game_option3 clicked!");
   choice = 3;
@@ -1340,4 +1325,7 @@ onEvent("button_gameover_play", "click", function( ) {
   
   // User is already authenticated, go straight to level select
   setScreen("screen_levelselect");
+});
+onEvent("button_game_option0", "click", function( ) {
+	console.log("button_game_option0 clicked!");
 });
