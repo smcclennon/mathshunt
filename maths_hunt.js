@@ -1142,6 +1142,9 @@ function Screen_game_main(username, difficulty) {
           // Set choice to wrong answer, to then display correct answer and start a new round
           update_status("user_did_not_choose");
           choice = 'user_did_not_choose';
+          
+          // end the game
+          loops = 11;
         }
       }
     }
