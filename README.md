@@ -1,25 +1,26 @@
 # Maths Hunt
-This repository contains a childrens mathematics game used for a BTEC IT assignment.
+This repository contains a children's mathematics game used for a BTEC IT assignment.
 
-View original the original python implementation [here](#python-implementation).
+View the original Python implementation [here](#python-implementation).
 
 ## AppLab implementation
-I developed the game on [AppLab](https://code.org/educate/applab), as there was not enough time available to learn how to design a webapp user interface (UI) using HTML and CSS. AppLab provided a basic click-and-drag interface for designing a UI and uses JavaScript ES2015 as its programming language.
+I developed the game on [AppLab](https://code.org/educate/applab), as there was not enough time available to learn how to design a webapp user interface (UI) using HTML and CSS. AppLab provides a basic click-and-drag interface for designing a UI and uses JavaScript ES2015 as its programming language.
 
-Source code for the full AppLab implementation can be viewed [here](maths_hunt.js).
+**Source code** for the full AppLab implementation can be viewed [here](maths_hunt.js).
 
-Documentation for implementing certain modules in this project yourself can be found in [here](DOCUMENTATION.md).
+**Documentation** for implementing certain modules in this project yourself can be found [here](DOCUMENTATION.md).
 
-The game can be played on AppLab [here](https://studio.code.org/projects/applab/tnyvPR89_9SjyNsJAzUVjOgN2FZoqLe5gJeTu28waDw). Please note that your username will become public if you register a new account on the game, and passwords are stored in plain text on the AppLab implementation due to AppLab/JavaScript ES2015 limitations.
+**Play** the game on AppLab [here](https://studio.code.org/projects/applab/tnyvPR89_9SjyNsJAzUVjOgN2FZoqLe5gJeTu28waDw). Please note that your username and password will become public if you register a new account in the game, and passwords are stored in plain text on the AppLab implementation due to AppLab/JavaScript ES2015 limitations.
 
 ## Python implementation
 A proof of concept for this game was originally created in Python to establish the computational requirements required for this project, including variables, functions, and logic. The source code for this early implementation can be viewed [here](maths_hunt.py).
 
 ### Overview of features:
 - Generates random maths questions
-- Generates 4 realistic multiple choice options
+- Generates 4 realistic multiple-choice options
 - Answers are always whole, non-negative numbers
-- 3 levels of difficulty with time limits
+- 3 levels of difficulty using time limits
+- More points awarded for difficult levels
 - "Secure" registration and login system
 - Leaderboard system with persistent score storage
 
