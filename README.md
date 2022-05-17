@@ -6,11 +6,9 @@ View the original Python implementation [here](#python-implementation).
 ## AppLab implementation
 I developed the game on [AppLab](https://code.org/educate/applab), as there was not enough time available to learn how to design a webapp user interface (UI) using HTML and CSS. AppLab provides a basic click-and-drag interface for designing a UI and uses JavaScript ES2015 as its programming language.
 
-**Source code** for the full AppLab implementation can be viewed [here](maths_hunt.js).
-
-**Documentation** for implementing certain modules in this project yourself can be found [here](DOCUMENTATION.md).
-
-**Play** the game on AppLab [here](https://studio.code.org/projects/applab/tnyvPR89_9SjyNsJAzUVjOgN2FZoqLe5gJeTu28waDw). Please note that your username and password will become public if you register a new account in the game, and passwords are stored in plain text on the AppLab implementation due to AppLab/JavaScript ES2015 limitations.
+- **Source code** for the full AppLab implementation can be viewed [here](maths_hunt.js).
+- **Documentation** for implementing certain modules in this project yourself can be found [here](DOCUMENTATION.md).
+- **Play** the game on AppLab [here](https://studio.code.org/projects/applab/tnyvPR89_9SjyNsJAzUVjOgN2FZoqLe5gJeTu28waDw). Please note that your username and password will become public if you register a new account in the game, and passwords are stored in plain text on the AppLab implementation due to AppLab/JavaScript ES2015 limitations.
 
 ## Python implementation
 A proof of concept for this game was originally created in Python to establish the computational requirements required for this project, including variables, functions, and logic. The source code for this early implementation can be viewed [here](maths_hunt.py).
