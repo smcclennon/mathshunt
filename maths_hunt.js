@@ -357,6 +357,17 @@ function Db_changescore(username, new_score) {
 ╚═╝  ╚═╝ ╚═════╝    ╚═╝   ╚═╝  ╚═╝
 Authentication modules */
 
+// Validation
+function Auth_validation(string) {
+  if (string == "") {
+    debug("Auth_validation", "Invalid: string is blank");
+    return false;
+  } else {
+    debug("Auth_validation", "Valid string!");
+    return true;
+  }
+}
+
 // Register user
 function Auth_register(username, password) {
   debug("Auth_register", "Registering user: '" + username + "'...");
@@ -372,12 +383,23 @@ function Auth_register(username, password) {
   // If username does not exist
   } else if (!user_exists) {
     
-    // Store credentials
-    Db_putcreds(username, password);
-    
-    debug("Auth_register", "Successfully registered user '" + username + "'. User authenticated!");
-    authenticated_username = username;
-    return "success";
+    if (Auth_validation(username)) {
+      if (Auth_validation(password)) {
+
+        // Store credentials
+        Db_putcreds(username, password);
+        
+        debug("Auth_register", "Successfully registered user '" + username + "'. User authenticated!");
+        authenticated_username = username;
+        return "success";
+      } else {
+        debug("Auth_register", "Could not register user '" + username + "': Invalid password");
+        return "password_invalid";
+      }
+    } else {
+      debug("Auth_register", "Could not register user '" + username + "': Invalid username");
+      return "user_invalid";
+    }
   }
 }
 
@@ -403,6 +425,7 @@ function Auth_authenticate(username, password) {
     if (password == db_response) {
       debug("Auth_authenticate", "Valid password, user authenticated!");
       authenticated_username = username;
+      playSound("mixkit-unlock-game-notification-253.wav");
       return "success";
     
     // If provided password does not match database copy
@@ -832,8 +855,7 @@ function Screen_leaderboard_update_loop() {
   
   timedLoop(sleep, function() {
     performance(1, 10, sleep, 'leaderboard_update');
-    console.log();
-    debug("Screen_leaderboard_update_loop", "Starting update loop...");
+    debug("Screen_leaderboard_update_loop", "\nStarting update loop...");
     if (readyin()) {
       Screen_leaderboard_update();
       
@@ -854,8 +876,7 @@ function Screen_leaderboard_update_loop() {
 function Screen_game_choicefeedback(choice_id, correct_ids, sleep) {
   for (var index in correct_ids) {
     var id = correct_ids[index];
-    console.log();
-    debug("Screen_game_choicefeedback", "Setting correct ID: " + id);
+    debug("Screen_game_choicefeedback", "\nSetting correct ID: " + id);
     setTimedProperty(id, "border-color", "#88ff88", sleep);
     setTimedProperty(id, "background-color", "#bbffbb", sleep);
   }
@@ -865,8 +886,7 @@ function Screen_game_choicefeedback(choice_id, correct_ids, sleep) {
   
   // If choice does not exist in correct answers
   if (choice_index == -1) {
-    console.log();
-    debug("Screen_game_choicefeedback", "Choice ID not in correct IDs. Setting choice ID: " + choice_id);
+    debug("Screen_game_choicefeedback", "\nChoice ID not in correct IDs. Setting choice ID: " + choice_id);
   setTimedProperty(choice_id, "border-color", "#ff8888", sleep);
   setTimedProperty(choice_id, "background-color", "#ffbbbb", sleep);
   }
@@ -939,6 +959,7 @@ function Screen_score_init(username, score) {
   leaderboard_updatescore(username, score);
   
   // Open the score screen
+  playSound("mixkit-fantasy-game-success-notification-270.wav");
   setProperty("text_gameover_score", "text", score);
   setScreen("screen_gameover");
   
@@ -1041,8 +1062,7 @@ function Screen_game_main(username, difficulty) {
       update_status("generating_question");
       
       // Generate question and answers
-      console.log('\n\n');
-      debug("Screen_game_main", "Executing round " + loops + "...");
+      debug("Screen_game_main", "\n\nExecuting round " + loops + "...");
 
       // Generate game questions and answers
       // num1, num2, operator, multiple choice, actual answer
@@ -1094,6 +1114,7 @@ function Screen_game_main(username, difficulty) {
         
         if (user_answer == answer) {
           score += score_increment;
+          playSound("mixkit-bonus-earned-in-video-game-2058.wav");
           debug("Screen_game_main", "User chose correct answer " + answer + "!");
           debug("Screen_game_main", "New score: " + score + " (+" + score_increment + ")");
       
@@ -1168,6 +1189,7 @@ onEvent("button_home_play", "click", function( ) {
 	console.log("button_play clicked!");
 	
 	// Set screen "login"
+	playSound("mixkit-quick-win-video-game-notification-269.wav");
 	setScreen("screen_login");
 });
 
@@ -1178,6 +1200,7 @@ onEvent("button_home_leaderboard", "click", function( ) {
 	console.log("button_home_leaderboard clicked!");
 	screen_breadcrumb("screen_home");  // Track where user was before entering leaderboard
 	
+	playSound("mixkit-quick-win-video-game-notification-269.wav");
 	setScreen("screen_leaderboard");
 	Screen_leaderboard_update_loop();
 });
@@ -1192,6 +1215,7 @@ onEvent("button_leaderboard_back", "click", function( ) {
   readyin(false);
 
   // Set screen to screen accessed before the leaderboard
+  playSound("mixkit-quick-win-video-game-notification-269.wav");
   setScreen(screen_breadcrumb("!get"));
 });
 
@@ -1212,6 +1236,10 @@ onEvent("button_register", "click", function( ) {
       setScreen("screen_levelselect");
     } else if (authorisation == "user_exists") {
         Screen_login_inputerror("input_username", "Username taken", 800);
+    } else if (authorisation == "user_invalid") {
+      Screen_login_inputerror("input_username", "Invalid username", 800);
+    } else if (authorisation == "password_invalid") {
+      Screen_login_inputerror("input_password", "Invalid password", 800);
     }
   }
 });
@@ -1251,6 +1279,7 @@ onEvent("button_login", "click", function( ) {
 // Button: "Level 0"
 onEvent("button_level0", "click", function ( ) {
   console.log("button_level0 clicked!");
+  playSound("mixkit-quick-win-video-game-notification-269.wav");
   Screen_game_main(authenticated_username, 0);
 });
 
@@ -1260,6 +1289,7 @@ onEvent("button_level0", "click", function ( ) {
 // Button: "Level 1"
 onEvent("button_level1", "click", function ( ) {
   console.log("button_level1 clicked!");
+  playSound("mixkit-quick-win-video-game-notification-269.wav");
   Screen_game_main(authenticated_username, 1);
 });
 
@@ -1269,6 +1299,7 @@ onEvent("button_level1", "click", function ( ) {
 // Button: "Level 2"
 onEvent("button_level2", "click", function ( ) {
   console.log("button_level2 clicked!");
+  playSound("mixkit-quick-win-video-game-notification-269.wav");
   Screen_game_main(authenticated_username, 2);
 });
 
@@ -1315,6 +1346,7 @@ onEvent("button_game_option3", "click", function( ) {
 onEvent("button_gameover_leaderboard", "click", function ( ) {
 	console.log("button_gameover_leaderboard clicked!");
 	screen_breadcrumb("screen_gameover");  // Track where user was before entering leaderboard
+	playSound("mixkit-quick-win-video-game-notification-269.wav");
 	setScreen("screen_leaderboard");
 	Screen_leaderboard_update_loop();
 });
@@ -1327,8 +1359,6 @@ onEvent("button_gameover_play", "click", function( ) {
   console.log("button_gameover_play clicked!");
   
   // User is already authenticated, go straight to level select
+  playSound("mixkit-quick-win-video-game-notification-269.wav");
   setScreen("screen_levelselect");
-});
-onEvent("button_game_option0", "click", function( ) {
-	console.log("button_game_option0 clicked!");
 });
