@@ -532,7 +532,7 @@ function game_generate_answers(min_num, max_num, number_of_answers, answer) {
   for (var i = 0; i < number_of_answers-1; i++) {
     var random_number = randomNumber(min_num, max_num);
     appendItem(multiple_choice, random_number);
-    debug("gane_generate_answers", "multiple-choice answer: " + random_number);
+    debug("game_generate_answers", "multiple-choice answer: " + random_number);
     
   }
   
