@@ -505,6 +505,12 @@ function game_answer_isvalid(answer) {
 
 // Screen: Game
 // Generate realistic multiple choice answers for a given answer
+/*
+min_num: Smallest number a generated answer can be
+max_num: Largest number a generated answer can be
+number_of_answers: How many multiple choice answers to generate and return (including the actual answer)
+answer: the actual answer which alternative answers are generated for, and which must be included in the possible answers returned
+*/
 function game_generate_answers(min_num, max_num, number_of_answers, answer) {
   
   var multiple_choice = [];
@@ -515,7 +521,8 @@ function game_generate_answers(min_num, max_num, number_of_answers, answer) {
   /*
   We do this because if the answer was 200, the multiple choice quesitons would
   otherwise be something like: [1, 12, 200, 4]
-  and the extreme difference would give the answer away
+  and the extreme difference between generated answers and the actual answer
+  would make the real answer obvious
   
   We multiply max_answer by 1.5 to add the posibiliy for multiple-choice
   answers to overshot the actual answer, so the largest multiple-choice
@@ -549,6 +556,9 @@ function game_generate_answers(min_num, max_num, number_of_answers, answer) {
 
 // Screen: Game
 // Game question generation
+/*
+min_num: Smallest integer which can be used in the equation generated
+max_num: Largest integer which can be used in the equation generated
 function game_generate_question(min_num, max_num) {
   
   var num1, num2, operator, answer, multiple_choice_answers;
