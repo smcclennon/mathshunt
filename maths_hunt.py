@@ -24,7 +24,7 @@ def debug(message, status='debug'):
 class Codec():
 
     # https://nitratine.net/blog/post/how-to-hash-passwords-in-python/
-    def hash(password, **kwargs):
+    def hash(self, **kwargs):
         debug('Hashing password')
         # Generate secure random salt
         new_salt = os.urandom(32)
@@ -32,27 +32,20 @@ class Codec():
         salt = kwargs.get("salt", new_salt)
 
         # Generate key
-        key = hashlib.pbkdf2_hmac(
-            "sha256", # The hash digest algorithm for HMAC
-            password.encode("utf-8"), # Convert the password to bytes
-            salt, # Provide the salt
-            100000 # It is recommended to use at least 100,000 iterations of SHA-256 
-        )
+        key = hashlib.pbkdf2_hmac("sha256", self.encode("utf-8"), salt, 100000)
         return salt, key
 
-    def b64_encode(original_bytes):
+    def b64_encode(self):
         debug('Encoding bytes to base64')
         # Input: b'T\x8b[m\xa7>'
-        base64_bytes = base64.b64encode(original_bytes)  # Encode with base64: b'VItbbac+'
-        base64_string = base64_bytes.decode('utf-8')  # Bytes to string: 'VItbbac+'
-        return base64_string
+        base64_bytes = base64.b64encode(self)
+        return base64_bytes.decode('utf-8')
 
-    def b64_decode(base64_string):
+    def b64_decode(self):
         debug('Decoding base64 to bytes')
         # Input: 'VItbbac+'
-        base64_bytes = base64_string.encode('utf-8')  # b'VItbbac+'
-        original_bytes = base64.b64decode(base64_bytes)  # Decode from base64: b'T\x8b[m\xa7>'
-        return original_bytes
+        base64_bytes = self.encode('utf-8')
+        return base64.b64decode(base64_bytes)
 
 # github.com/smcclennon/pyauth
 # Interface with database file
@@ -104,29 +97,29 @@ class Db_interface():
                 # Print debug message and re-loop (to load database in to variable)
                 debug('\tCreated new database', 0)
 
-    def getcreds(username):
-        debug(f'Getting credentials for "{username}"')
+    def getcreds(self):
+        debug(f'Getting credentials for "{self}"')
         creds = []
         for item in ["salt", "key"]:
-            encoded_item = Db_interface.users[username][item]
+            encoded_item = Db_interface.users[self][item]
             decoded_item = Codec.b64_decode(encoded_item)
             creds.append(decoded_item)
         debug('\tCredentials retrieved!', 0)
         return creds[0], creds[1]  # return salt, key
 
-    def putcreds(username, salt, key):
-        debug(f'Putting credentials for "{username}"')
+    def putcreds(self, salt, key):
+        debug(f'Putting credentials for "{self}"')
         creds = []
         for item in [salt, key]:
             encoded_item = Codec.b64_encode(item)
             creds.append(encoded_item)
-        Db_interface.users[username].update({"salt": creds[0], "key": creds[1]})
+        Db_interface.users[self].update({"salt": creds[0], "key": creds[1]})
         debug('\tPut credentials!', 0)
         Db_interface.save_db()
     
-    def puthighscore(username, score):
-        debug(f'Putting leaderboard entry {score} for "{username}"')
-        Db_interface.users[username].update({"highscore": score})
+    def puthighscore(self, score):
+        debug(f'Putting leaderboard entry {score} for "{self}"')
+        Db_interface.users[self].update({"highscore": score})
         debug('\tPut leaderboard entry!', 0)
         Db_interface.save_db()
 
@@ -134,11 +127,11 @@ class Db_interface():
 # Authentication code
 class Auth():
 
-    def authenticate(username, password):
-        debug(f'Authenticating "{username}"')
-        if username in Db_interface.users:
+    def authenticate(self, password):
+        debug(f'Authenticating "{self}"')
+        if self in Db_interface.users:
             # Get correct keys from database, converting string back to bytes
-            original_salt, original_key = Db_interface.getcreds(username)
+            original_salt, original_key = Db_interface.getcreds(self)
 
             # Generate new keys using provided credentials
             original_salt, new_key = Codec.hash(password, salt=original_salt)
@@ -154,13 +147,13 @@ class Auth():
             debug('\tAuthentication failure, invalid_user', 1)
             return "invalid_user"
 
-    def register(username, password):
-        debug(f'Registering {username}')
-        
-        # Prevent new dictionary keys being stored as integers
-        username = str(username)
+    def register(self, password):
+        debug(f'Registering {self}')
 
-        if username in Db_interface.users:
+        # Prevent new dictionary keys being stored as integers
+        self = str(self)
+
+        if self in Db_interface.users:
             debug('\tRegistration failure, username_taken', 1)
             return "username_taken"
         else:
@@ -169,9 +162,9 @@ class Auth():
 
             # Initialise user entry
             # Add "highscore" data field to user
-            Db_interface.users.update({username: {"highscore": 0}})
+            Db_interface.users.update({self: {"highscore": 0}})
             # Store non-plaintext password
-            Db_interface.putcreds(username, salt, key)
+            Db_interface.putcreds(self, salt, key)
             debug('\tRegistration success!', 0)
             return "success"
 
@@ -179,15 +172,19 @@ class Auth():
 class module:
     """ Used to group/organise back-end code which does not display anything """
     
-    def update_highscore(username, score):
-        debug(f'Updating highscore for user "{username}"')
-        oldscore = Db_interface.users[username]["highscore"]
+    def update_highscore(self, score):
+        debug(f'Updating highscore for user "{self}"')
+        oldscore = Db_interface.users[self]["highscore"]
         if score > oldscore:
-            Db_interface.puthighscore(username, score)
-            debug(f'\tUpdated highscore for user "{username}": {oldscore} -> {score}', 0)
+            Db_interface.puthighscore(self, score)
+            debug(f'\tUpdated highscore for user "{self}": {oldscore} -> {score}', 0)
             return True
         else:
-            debug(f'\tHighscore not updated for user "{username}": Old score {oldscore} >= {score}', 1)
+            debug(
+                f'\tHighscore not updated for user "{self}": Old score {oldscore} >= {score}',
+                1,
+            )
+
             return False
     
     def generate_operator():
@@ -196,34 +193,37 @@ class module:
         debug(f'\tOperator: {operator}')
         return operator
 
-    def calculate_question(num1, num2, operator):
+    def calculate_question(self, num2, operator):
         if operator == "add":
-            answer = num1 + num2  # Add num1 and num2 together
+            answer = self + num2
         elif operator == "subtract":
-            answer = num1 - num2  # Subtract num2 from num1
+            answer = self - num2
         elif operator == "multiply":
-            answer = num1 * num2  # Multiply num1 and num2 together
+            answer = self * num2
         elif operator == "divide":
-            answer = num1 / num2 # Divide num1 in to num2
+            answer = self / num2
         return answer
     
-    def answer_isvalid(answer):
+    def answer_isvalid(self):
         # Validate answer
-        if not float(answer).is_integer():
+        if not float(self).is_integer():
             debug(f'\tAnswer is not an integer', 1)
             return False
-        elif answer < 0:
+        elif self < 0:
             debug(f'\tAnswer is less than 0', 1)
             return False
         else:
             debug('\tAnswer is valid', 0)
             return True
 
-    def generate_answers(min_number, max_number, number_of_values, answer):
+    def generate_answers(self, max_number, number_of_values, answer):
         # Generate multiple choice values
         debug('')
-        debug(f'Generating {number_of_values} multiple-choice answers between {min_number} and {max_number}')
-        
+        debug(
+            f'Generating {number_of_values} multiple-choice answers between {self} and {max_number}'
+        )
+
+
         # Increase max multiple-choice value to answer if the answer > max_number 
         """
         We do this because if the answer was 200, the multiple choice quesitons would
@@ -238,10 +238,9 @@ class module:
             debug(f'\tAnswer {answer} is more than current max number {max_number}.', 1)
             max_number = int(answer * 1.5)
             debug(f'\tNew max number: {max_number}', 0)
-        multiple_choice = []
-        multiple_choice.append(answer)
-        for i in range(number_of_values-1):  # -1 to Compensate for answer being added
-            random_number = random.randint(min_number, max_number)
+        multiple_choice = [answer]
+        for _ in range(number_of_values-1):
+            random_number = random.randint(self, max_number)
             multiple_choice.append(random_number)
             debug(f'\tmultiple-choice answer: {random_number}')
 
@@ -277,7 +276,7 @@ class module:
             num1 = random.randint(min_number, max_number)  # Generate the first number
             num2 = random.randint(min_number, max_number)  # Generate the second number
             debug(f'\tNumbers generated: {num1}, {num2}')
-            
+
             answer = module.calculate_question(num1, num2, operator)
 
             debug(f'\tQuestion: {num1} {operator} {num2} = {answer}')
@@ -297,10 +296,10 @@ class screen:
     # Print the leaderboard
     def leaderboard():
         print("\n== Leaderboard ==")
-        scores = []
-        for user in Db_interface.users:
-            # 14, Alex
-            scores.append((Db_interface.users[user]["highscore"], user))
+        scores = [
+            (Db_interface.users[user]["highscore"], user)
+            for user in Db_interface.users
+        ]
 
         # Sort by largest score
         scores = sorted(scores, reverse=True)
@@ -317,7 +316,7 @@ class screen:
         input("[Go back]")
 
     # Play game
-    def game(username, timer, points):
+    def game(self, timer, points):
         """
         Username: authenticated players username
         Timer: Seconds to allow the player to choose
@@ -325,14 +324,13 @@ class screen:
         """
         debug(f'New game: {timer}s timer, {points} points')
         current_score = 0
-        for i in range(10):  # 10 rounds
+        for _ in range(10):
             question = module.generate_question()
             num1, operator, num2, multiple_choice_answers, answer = question  # Unpack tuple
-            
+
             start_time = time.time()
-            
-            print_question = ''
-            print_question += 'Question: '
+
+            print_question = '' + 'Question: '
             print_question += f'{num1} '
 
             # Convert mathematical operator placeholder to symbol representation
@@ -344,17 +342,14 @@ class screen:
                 print_question += '× '
             elif operator == 'divide':
                 print_question += '÷ '
-            
+
             print_question += f'{num2} '
-            
-            print_choices = ''
-            for choice in multiple_choice_answers:
-                print_choices += f'[{choice}] '
-            
+
+            print_choices = ''.join(f'[{choice}] ' for choice in multiple_choice_answers)
             print(f'\n{print_question}')
             selected_choice = input(print_choices)
             answer_duration = time.time() - start_time
-            
+
             if answer_duration > timer:
                 print('Ran out of time!')
             elif selected_choice == str(answer):
@@ -363,14 +358,13 @@ class screen:
             else:
                 print(f'Incorrect answer. Answer was {answer}')
             print(f'Score: {current_score}')
-        
-        new_highscore = module.update_highscore(username, current_score)
-        if new_highscore:
+
+        if new_highscore := module.update_highscore(self, current_score):
             print('New highscore!')
         
     # Choose difficulty
     # Pass "username" to keep track of who is authenticated
-    def difficulty(username):
+    def difficulty(self):
         print("\n== Choose level ==")
         print("[0] [1] [2]")
         choice = input()
@@ -383,7 +377,7 @@ class screen:
         elif choice == "2":
             timer = 10  # 10 second timer
             points = 3  # Award 3 points for each correct answer
-        screen.game(username, timer, points)  # Start the game
+        screen.game(self, timer, points)
             
         
 
